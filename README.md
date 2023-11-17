@@ -48,7 +48,7 @@ Arguably the most interesting AD type is "Manufacturer Specific" (0xFF). This ty
 
 Google's Fast Pair protocol takes a similar approach with type 0xFF, but funnily enough this custom data isn't required to trigger popups on Android.
 
-See https://github.com/furiousMAC/continuity for more details on the structure of the continuity protocol.
+See (https://github.com/furiousMAC/continuity) for more details on the structure of the continuity protocol.
 
 ## Android
 
@@ -102,14 +102,14 @@ Example code is provided for each section. Assuming a debian-like system, run th
 The bluetooth_utils.py file should be placed in the same folder as your python script.
 
 ### Android
-- Fast pair adoption process https://developers.google.com/static/nearby/fast-pair/images/FP_Process_Overview.png
-- Register fast pair device: https://developers.google.com/nearby/devices/
-- Fast pair adoption process: https://developers.google.com/static/nearby/fast-pair/images/FP_Process_Overview.png
-- Register fast pair device: https://developers.google.com/nearby/devices/
+- Fast pair adoption process (https://developers.google.com/static/nearby/fast-pair/images/FP_Process_Overview.png)
+- Register fast pair device: (https://developers.google.com/nearby/devices/)
+- Fast pair adoption process: (https://developers.google.com/static/nearby/fast-pair/images/FP_Process_Overview.png)
+- Register fast pair device: (https://developers.google.com/nearby/devices/)
 
 ### Fast Pair protocol
 
-- Fast pair spec: https://developers.google.com/nearby/fast-pair/landing-page
+- Fast pair spec: (https://developers.google.com/nearby/fast-pair/landing-page)
 
 ### Breakdown of packet
 
@@ -148,7 +148,7 @@ The payload for this packet is straightforward. It consists of 3 sections:
 - The next 2 bytes advertise the Transmit Power Level of the message. This is arbitrary, *but required to trigger proximity-based events*.
 
 This packet is eventually processed here:
-https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/Connectivity/nearby/framework/java/android/nearby/NearbyManager.java
+(https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/Connectivity/nearby/framework/java/android/nearby/NearbyManager.java)
 
 ### Anti-Spoofing Keys
 
@@ -165,7 +165,7 @@ In addition enumerating a wide variety of real devices (mostly headphones), @ect
 It is possible to get your own Anti-Spoofing key, and in the process register whatever image you choose. This key will not be approved by Google, so the associated popups only work on phones that have been put into Developer mode. Still, many otherwise security-conscious folks tend to turn on Developer mode for the sake of rooting and using ADB.  This makes them susceptible to showing arbitrary content (provided you add it in your developer portal ahead of time).
 
 To get your own key:
-1. Go to https://developers.google.com/nearby/devices
+1. Go to (https://developers.google.com/nearby/devices)
 2. Click "Add Series"
 3. Enter the following information:
    1. Series Name: This just identifies it on the dashboard. It's meant to group multiple revisions of the same device.
@@ -444,11 +444,11 @@ On android, a popup must be dismissed twice before it triggers a cooldown. Per G
 ## Below the fold
 
 ### Links
-- Register fast pair device: https://developers.google.com/nearby/devices/
-- Fast pair spec: https://developers.google.com/nearby/fast-pair/landing-page
-- Xtreme firmware: https://github.com/Flipper-XFW/Xtreme-Firmware
-- Apple BLEEE: https://github.com/hexway/apple_bleee
-- Proximity pairing messages: https://github.com/furiousMAC/continuity/blob/master/messages/proximity_pairing.md
-- Fast pair adoption process https://developers.google.com/static/nearby/fast-pair/images/FP_Process_Overview.png
-- https://developers.google.com/nearby/fast-pair/specifications/service/provider
-- Dismissing popups: https://developers.google.com/nearby/fast-pair/fast-pair-faq
+- Register fast pair device: (https://developers.google.com/nearby/devices/)
+- Fast pair spec: (https://developers.google.com/nearby/fast-pair/landing-page)
+- Xtreme firmware: (https://github.com/Flipper-XFW/Xtreme-Firmware)
+- Apple BLEEE: (https://github.com/hexway/apple_bleee)
+- Proximity pairing messages: (https://github.com/furiousMAC/continuity/blob/master/messages/proximity_pairing.md)
+- Fast pair adoption process (https://developers.google.com/static/nearby/fast-pair/images/FP_Process_Overview.png)
+- (https://developers.google.com/nearby/fast-pair/specifications/service/provider)
+- Dismissing popups: (https://developers.google.com/nearby/fast-pair/fast-pair-faq)
