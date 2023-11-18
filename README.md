@@ -80,7 +80,7 @@ See [FuriousMAC's research](https://github.com/furiousMAC/continuity) for more d
 ### Generating packets
 You can generate BLE advertisement packets on just about any device with a bluetooth radio and an SDK. 
 
-While the Flipper form-factor makes it an extremely convenient tool for playing back messages, when it comes to quickly iterating playing around with variations and iterating on different messages (not to mention boosting the signal with a bluetooth adapter) I'm a huge fan of Raspberry Pi and similar Linux SBCs.  The code below should run on any linux system with bluez, and was tested specifically on a Pi Zero 2 W running Raspbian.
+While the Flipper form-factor makes it an extremely convenient tool for playing back messages, when it comes to trying out lots of different message combinations (not to mention boosting the signal with a bluetooth adapter) I lean towards Raspberry Pi and similar Linux SBCs. The code below should run on any linux system with `bluez`, and was tested specifically on a Pi Zero 2 W running Raspbian.
 
 In order to supply the raw packet data, we need to use methods not publicly exposed by PyBlueZ. The [py-bluetooth-utils](https://github.com/colin-guyon/py-bluetooth-utils/tree/master) package calls directly into bluez libraries and provides functions that makes this easy:
 
