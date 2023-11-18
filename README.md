@@ -123,6 +123,7 @@ To trigger a popup on Android, we can craft a packet containing:
 0x02 // size
 0x0a // Type: Power Level
 0xFF // The power level value
+
 <CRC>
 ```
 
@@ -179,7 +180,7 @@ Once you have entered this information, click "Save Draft" instead of "Submit". 
 
 This is your Anti-Spoofing key. Including these bytes in a spoofed packet will trigger the text and image that you supplied, provided the phones is in dev mode.
 
-#### Generate Fast Pair popup on Android:
+### Generate Fast Pair popup on Android:
 ```python
 import signal
 import random
@@ -310,7 +311,6 @@ Our fudged packets look more like this:
 
 <CRC>
 ```
-###
 
 The exact cause of the crash isn't known, but we can make a few educated guesses as to what might be happening.
 
@@ -335,7 +335,6 @@ error  bluetoothd  425  0x229b  51473  15:26:25.878367-0800  WirelessProximity  
 error  bluetoothd  425  0x229b  51473  15:26:25.878345-0800  WirelessProximity     WPDaemon    Trying to update advertiser but peripheral manager isn't powered on	com.apple.bluetooth
 error  bluetoothd  425  0x229b  51473  15:26:25.878319-0800  WirelessProximity     WPDaemon    ObjectDiscovery -[WPDObjectDiscoveryManager updateAdvertiser] updated with error: Trying to update advertiser but peripheral manager isn't powered on	com.apple.bluetooth
 ```
-
   - searchpartyd
   - nearbyd
   - firmwareUpdate
@@ -345,7 +344,7 @@ error  bluetoothd  425  0x229b  51473  15:26:25.878319-0800  WirelessProximity  
 		error	mediasetupd	357	0x1c6a	27573	15:26:18.646193-0800	XPCEventRouter.Client	HomeKit	[1CAEDC10-E3E5-41A4-BB17-A9EEBA14A938] Could not create BTA successfully	com.apple.HomeKit
 	```
 
-# Generate ios crash
+### Generate ios crash
 ```python
 import signal
 import random
