@@ -35,13 +35,13 @@ The PDU is further divided into:
 	- The first 4 bits represent PDU Type. We're interested in the ADV_IND (0000) type.
 	- The remaining twelve bits encode various flags, and the length of the payload.
 
-- Payload (6-37 bytes) - The structure of the payload varies based on the PDU type. The structure below applies to the ADV_IND PDU Type .This payload contains:
-  	- The bluetooth advertising address (ADV_ADDR) (6 bytes)
-  	- `0..N` instances of the following triplet of values (up to 31 bytes total):
-  		- AD Length (1 byte) - Length of type+data fields combined
-  		- AD Type (N bytes)
-  		- AD Data (AD_LENGTH - N bytes)
-
+- Payload (6-37 bytes) - The structure of the payload varies based on the PDU type. The structure below applies to the ADV_IND and ADV_NONCONN_IND PDU Types.
+	- The bluetooth advertising address (ADV_ADDR) (6 bytes)
+	- `0..N` instances of the following triplet of values (up to 31 bytes total):
+		- AD Length (1 byte) - Length of type+data fields combined
+		- AD Type (N bytes)
+		- AD Data (AD_LENGTH - N bytes)
+	
 There are several AD Types. Most of them, like Flags (0x01) and TX Power (0x0a) are standard types that are used by both Google and Apple protocols.
 
 Arguably the most interesting AD type is "Manufacturer Specific" (0xFF). This type requires a 16 bit company ID as the first two bytes of data. Apple uses this custom type to implement their Continuity protocol within the remaining bytes. 
@@ -127,15 +127,20 @@ To trigger a popup on Android, we can craft a packet containing:
 ```
 
 The payload for this packet is straightforward. It consists of 3 sections:
+
+Section 1:
 - The declared size of the first section is 0x03 (3)
 - The next 3 bytes declare that this will be a google fast pair packet
 
+Section 2:
 - The declared size of the second section is 0x06 (6)
 - The next 3 bytes declare that this section contains data related to google fast pair
 - The next 3 bytes are the **Anti-Spoofing Key** for the device.
 
+Section 3:
 - The declared size of the final section is 0x02 (2)
 - The next 2 bytes advertise the Transmit Power Level of the message. This is arbitrary, *but required to trigger proximity-based events*.
+
 
 This packet is eventually processed here:
 [NearbyManager.java](https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/Connectivity/nearby/framework/java/android/nearby/NearbyManager.java)
@@ -233,9 +238,11 @@ signal.signal(signal.SIGINT, signal_handler)
 
 ### Crashing iOS - Breakdown of exploit process
 
-This process was discovered by @ecto-1a during fuzzing / brute forcing of the continuity protocol. The exploit reflects this, playing back a random sequence of Nearby Actions, but including corrupt Nearby Info in the same packet. It's only been documented to trigger a system crash on newer iPhones running iOS 17. I've tested the behavior on an iPhone 13 Pro and Pro Max running iOS 17-17.1.1, and was not able to trigger a crash on an iPad mini or iPhone SE2 running iOS 17.1 (although it still causes innumerable popups).
+This process was discovered by @ecto-1a during fuzzing / brute forcing of the continuity protocol. The exploit reflects this, playing back a random sequence of Nearby Actions, but including corrupt Nearby Info in the same packet. 
 
-Newer phones, after showing a few popups will eventually stop responding, usually on a black screen. This requires a hard reboot (Vol+, Vol-, Hold Power) to restore service. If anyone tests it on iPhone SE3, iPhone 12, 11, 10(s) I'd love to know the results (mastodon:@jb0x168@infosec.exchange)
+It's only been documented to trigger a system crash on newer iPhones running iOS 17. I've tested the behavior on an iPhone 13 Pro and Pro Max running iOS 17-17.1.1, and was not able to trigger a crash on an iPad mini or iPhone SE2 running iOS 17.1 (although it still causes innumerable popups).
+
+Newer phones, after showing a few popups will eventually stop responding, usually on a black screen. This requires a hard reboot (Vol+, Vol-, Hold Power) to restore service. If anyone tests it on iPhone SE3, iPhone 12, 11, 10(s) I'd love to know the results (mastodon: @jb0x168@infosec.exchange)
 
 To generate a packet for this process, we create a packet containing a Nearby Action message, two null bytes, followed by a Nearby Info message with a litle random data thrown in:
 1. Declare a valid size for the full packet
@@ -320,8 +327,7 @@ When the device locks up, a flurry of messages are seen across various services.
 
 This research is still in progress and will be updated as more information is avialable.
 
-- The following messages have been observed 
-
+The following messages have been observed 
 ```log
 error  bluetoothd   96  0x17a6  50366  15:26:23.806806-0800  Server.LE.Connection  bluetoothd  getNextLeConnectionRSSIThresholdState: B51FD534-4995-134C-06C4-D05AB29D5486 is in invalid state	com.apple.bluetooth
 error  bluetoothd  425  0x229b  51473  15:26:25.878417-0800  WirelessProximity     WPDaemon    Advertising failed to start for client <private> type 18 with error: Trying to update advertiser but peripheral manager isn't powered on	com.apple.bluetooth
