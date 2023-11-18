@@ -328,6 +328,7 @@ When the device locks up, a flurry of messages are seen across various services.
 This research is still in progress and will be updated as more information is avialable.
 
 The following messages have been observed 
+- bluetoothd
 ```log
 error  bluetoothd   96  0x17a6  50366  15:26:23.806806-0800  Server.LE.Connection  bluetoothd  getNextLeConnectionRSSIThresholdState: B51FD534-4995-134C-06C4-D05AB29D5486 is in invalid state	com.apple.bluetooth
 error  bluetoothd  425  0x229b  51473  15:26:25.878417-0800  WirelessProximity     WPDaemon    Advertising failed to start for client <private> type 18 with error: Trying to update advertiser but peripheral manager isn't powered on	com.apple.bluetooth
@@ -335,14 +336,10 @@ error  bluetoothd  425  0x229b  51473  15:26:25.878367-0800  WirelessProximity  
 error  bluetoothd  425  0x229b  51473  15:26:25.878345-0800  WirelessProximity     WPDaemon    Trying to update advertiser but peripheral manager isn't powered on	com.apple.bluetooth
 error  bluetoothd  425  0x229b  51473  15:26:25.878319-0800  WirelessProximity     WPDaemon    ObjectDiscovery -[WPDObjectDiscoveryManager updateAdvertiser] updated with error: Trying to update advertiser but peripheral manager isn't powered on	com.apple.bluetooth
 ```
-  - searchpartyd
-  - nearbyd
-  - firmwareUpdate
-  - mediasetupd
-	- 
-	```log 
-		error	mediasetupd	357	0x1c6a	27573	15:26:18.646193-0800	XPCEventRouter.Client	HomeKit	[1CAEDC10-E3E5-41A4-BB17-A9EEBA14A938] Could not create BTA successfully	com.apple.HomeKit
-	```
+- searchpartyd
+- nearbyd
+- firmwareUpdate
+- mediasetupd
 
 ### Generate ios crash
 ```python
