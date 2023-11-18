@@ -314,7 +314,7 @@ Our fudged packets look more like this:
 
 The exact cause of the crash isn't known, but we can make a few educated guesses as to what might be happening.
 
-Reading the packet-byte-byte, everything is hunky-dory up until the end of the Nearby Action message. Since we still have bytes left in the overall size (Total size=0x10, or 16) we read the next byte, expecting to find a Continuity Message Type, for example 0x10 for a Nearby Info message.
+Reading the packet-byte-by-byte, everything is hunky-dory up until the end of the Nearby Action message. Since we still have bytes left in the overall size (Total size=0x10, or 16) we read the next byte, expecting to find a Continuity Message Type, for example 0x10 for a Nearby Info message.
 
 Instead, we get a message type of 0x00. This type has not been documented in any normal continuity messages. Assuming that it still gets parsed, the next byte would be the message size, but uh-oh! it's also 0x00.
 
